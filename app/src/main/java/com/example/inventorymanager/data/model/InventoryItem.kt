@@ -7,8 +7,8 @@ import androidx.room.PrimaryKey
 @Entity(tableName = "inventory_item")
 data class InventoryItem(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
-    @ColumnInfo(name = "name") val name: String,
-    @ColumnInfo(name = "total_stock") val totalStock: Int,
-    @ColumnInfo(name = "price") val price: Double,
-    @ColumnInfo(name = "description") val description: String
+    @ColumnInfo(name = "name") var name: String,
+    @ColumnInfo(name = "total_stock") var totalStock: Int,
+    @ColumnInfo(name = "price") var price: Double,
+    @ColumnInfo(name = "description") var description: String
 )

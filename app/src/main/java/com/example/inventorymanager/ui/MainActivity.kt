@@ -11,10 +11,14 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.asLiveData
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.inventorymanager.data.model.InventoryItem
 import com.example.inventorymanager.ui.screens.inventory.EditInventoryScreen
 import com.example.inventorymanager.ui.screens.inventory.InventoryCreateScreen
 import com.example.inventorymanager.ui.screens.inventory.InventoryListingScreen
@@ -33,7 +37,7 @@ class MainActivity : ComponentActivity() {
 
         sharedPreferences = getSharedPreferences("LoginPrefs", Context.MODE_PRIVATE)
 
-        if (sharedPreferences.getBoolean("loggedIn", false)) {
+        if (!sharedPreferences.getBoolean("loggedIn", false)) {
             val intent = Intent(this, LoginActivity::class.java)
             startActivity(intent)
             finish()
@@ -58,8 +62,9 @@ fun AppNavigator(viewModel: InventoryViewModel, sharedPreferences: SharedPrefere
     val navController = rememberNavController()
     NavHost(navController = navController, startDestination = "inventoryList") {
         composable("inventoryList") {
+            val items: List<InventoryItem> by viewModel.inventoryItems.collectAsState(initial = listOf())
             InventoryListingScreen(
-                items = viewModel.getInventoryItems(),
+                items = items,
                 onAddItem = {
                     navController.navigate("inventoryCreate")
                 },
@@ -70,6 +75,7 @@ fun AppNavigator(viewModel: InventoryViewModel, sharedPreferences: SharedPrefere
                     }
                 },
                 onItemClicked = { item ->
+                    viewModel.item = item
                     navController.navigate("inventoryEdit/${item.id}")
                 }
             )
@@ -79,10 +85,18 @@ fun AppNavigator(viewModel: InventoryViewModel, sharedPreferences: SharedPrefere
             navController.popBackStack()
         }) }
         composable("inventoryEdit/{itemId}") { backStackEntry ->
-            val itemId = backStackEntry.arguments?.getInt("itemId")
-            // Fetch the item with the given ID from your data source
-            val item = viewModel.getInventoryItem(itemId ?: 0)
-            EditInventoryScreen(item, onSaveButtonClicked = {}, onDeleteButtonClicked = {})
+            val itemId = backStackEntry.arguments?.getString("itemId")?.toInt()
+            EditInventoryScreen(
+                viewModel.item!!,
+                onUpdateInventoryItem = {
+                    viewModel.editInventoryItem(it)
+                    navController.popBackStack()
+                },
+                onDeleteButtonClicked = {
+                    viewModel.deleteInventoryItem(viewModel.item!!)
+                    navController.popBackStack()
+                }
+            )
         }
     }
 }

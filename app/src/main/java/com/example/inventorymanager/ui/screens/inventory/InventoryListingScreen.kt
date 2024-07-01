@@ -53,7 +53,7 @@ fun InventoryListingScreen(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             items.forEach { item ->
-                Box(modifier = Modifier.clickable { onItemClicked(item) }) {
+                Column(modifier = Modifier.clickable { onItemClicked(item) }) {
                     Text("Name: ${item.name}")
                     Text("Price: $${item.price}")
                     Text("Stock: ${item.totalStock}")

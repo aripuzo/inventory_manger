@@ -27,7 +27,7 @@ class EditInventoryScreenTest {
                     price = 100.0,
                     description = "Description for item 1"
                 ),
-                onSaveButtonClicked = {},
+                onUpdateInventoryItem = {},
                 onDeleteButtonClicked = {}
             )
         }
